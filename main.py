@@ -28,20 +28,29 @@ def find_otsu(img):
             thresh = i
     return thresh
 
+def threshold(img, threshold):
+    m, n = len(img),len(img[0])
+    new_img = np.zeros((m,n))
+    for x in range(0, len(img)):
+        for y in range(0, len(img[0])):
+            if img[x][y]>threshold:
+                new_img[x][y]=255
+    return new_img
+
 # Use threshold methods to get the binary images
 def get_bimg(P, img_p):
     img_path = os.path.join(P, img_p)
     print(img_path)
     img = cv.imread(img_path,0)
-    # global thresholding
-    ret1,th1 = cv.threshold(img,127,255,cv.THRESH_BINARY)
+    # global thresholding 127
+    th1 = threshold(img, 127)
     # Otsu's thresholding
     Otsu = find_otsu(img)
-    ret2,th2 = cv.threshold(img,Otsu,255,cv.THRESH_BINARY)
+    th2 = threshold(img, Otsu)
     # Otsu's thresholding after Gaussian filtering
     blur = cv.GaussianBlur(img,(3,3),0)
     blur_Otsu = find_otsu(img)
-    ret3,th3 = cv.threshold(blur,blur_Otsu,255,cv.THRESH_BINARY)
+    th3 = threshold(blur, blur_Otsu)
     # plot all the images and their histograms
     
     return blur, th1, th2, th3
@@ -124,24 +133,19 @@ if __name__ == '__main__':
         img_path = os.path.join(P, img_p)
         img = cv.imread(img_path,0)
 
-
         images = [img, 0, th1, img, 0, th2, blur, 0, th3]
-        # thins = [thin(th1), thin(th2), thin(th3)]
-
-        cv.imshow('image', blur)
-        cv.waitKey(0)
-
-        # titles = ['Original Image','Histogram','Threshold=127','Thinning',
-        #         'Original Image','Histogram',"Threshold={}".format(find_otsu(img)),'Thinning',
-        #         'Filtered Image','Histogram',"Threshold={}".format(find_otsu(blur)),'Thinning']
-        # for i in range(3):
-        #     plt.subplot(3,4,i*4+1),plt.imshow(images[i*3],'gray')
-        #     plt.title(titles[i*4]), plt.xticks([]), plt.yticks([])
-        #     plt.subplot(3,4,i*4+2),plt.hist(images[i*3].ravel(),256)
-        #     plt.title(titles[i*4+1]), plt.xticks([]), plt.yticks([])
-        #     plt.subplot(3,4,i*4+3),plt.imshow(images[i*3+2],'gray')
-        #     plt.title(titles[i*4+2]), plt.xticks([]), plt.yticks([])
-        #     plt.subplot(3,4,i*4+4),plt.imshow(thins[i],'gray')
-        #     plt.title(titles[i*4+3]), plt.xticks([]), plt.yticks([])
-        # plt.savefig('Results/Result_{}.jpg'.format(img_p.split('.')[0]))
-        # plt.close()
+        thins = [thin(th1), thin(th2), thin(th3)]
+        titles = ['Original Image','Histogram','Threshold=127','Thinning',
+                'Original Image','Histogram',"Threshold={}".format(find_otsu(img)),'Thinning',
+                'Filtered Image','Histogram',"Threshold={}".format(find_otsu(blur)),'Thinning']
+        for i in range(3):
+            plt.subplot(3,4,i*4+1),plt.imshow(images[i*3],'gray')
+            plt.title(titles[i*4]), plt.xticks([]), plt.yticks([])
+            plt.subplot(3,4,i*4+2),plt.hist(images[i*3].ravel(),256)
+            plt.title(titles[i*4+1]), plt.xticks([]), plt.yticks([])
+            plt.subplot(3,4,i*4+3),plt.imshow(images[i*3+2],'gray')
+            plt.title(titles[i*4+2]), plt.xticks([]), plt.yticks([])
+            plt.subplot(3,4,i*4+4),plt.imshow(thins[i],'gray')
+            plt.title(titles[i*4+3]), plt.xticks([]), plt.yticks([])
+        plt.savefig('Results/Result_{}.jpg'.format(img_p.split('.')[0]))
+        plt.close()
