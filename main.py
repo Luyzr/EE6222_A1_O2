@@ -29,6 +29,7 @@ def find_otsu(img):
     return thresh
 
 def threshold(img, threshold):
+    # using the global threshold to binary the img
     m, n = len(img),len(img[0])
     new_img = np.zeros((m,n))
     for x in range(0, len(img)):
